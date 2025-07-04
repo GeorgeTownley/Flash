@@ -1,26 +1,102 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
+/* Root variables (default Flash theme) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-flash-bg: #f5f1eb;
+  --color-flash-surface: #ede5d8;
+  --color-flash-card: #ffffff;
+  --color-flash-text: #2d1810;
+  --color-flash-text-muted: #6b4423;
+  --color-flash-primary: #5d2e1a;
+  --color-flash-accent: #8b2635;
+  --color-flash-accent-light: #a53545;
+  --color-flash-success: #16a34a;
+  --color-flash-error: #dc2626;
+  --color-flash-border: #d6c4b0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Ocean Theme */
+.theme-ocean {
+  --color-flash-bg: #0f172a;
+  --color-flash-surface: #1e293b;
+  --color-flash-card: #334155;
+  --color-flash-text: #e2e8f0;
+  --color-flash-text-muted: #94a3b8;
+  --color-flash-primary: #0ea5e9;
+  --color-flash-accent: #06b6d4;
+  --color-flash-accent-light: #22d3ee;
+  --color-flash-success: #10b981;
+  --color-flash-error: #ef4444;
+  --color-flash-border: #475569;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Jungle Theme */
+.theme-jungle {
+  --color-flash-bg: #14532d;
+  --color-flash-surface: #166534;
+  --color-flash-card: #22c55e;
+  --color-flash-text: #f7fee7;
+  --color-flash-text-muted: #bbf7d0;
+  --color-flash-primary: #15803d;
+  --color-flash-accent: #eab308;
+  --color-flash-accent-light: #fde047;
+  --color-flash-success: #84cc16;
+  --color-flash-error: #f97316;
+  --color-flash-border: #4ade80;
 }
 
+/* Desert Theme */
+.theme-desert {
+  --color-flash-bg: #92400e;
+  --color-flash-surface: #a16207;
+  --color-flash-card: #fef3c7;
+  --color-flash-text: #451a03;
+  --color-flash-text-muted: #78350f;
+  --color-flash-primary: #b45309;
+  --color-flash-accent: #dc2626;
+  --color-flash-accent-light: #f87171;
+  --color-flash-success: #65a30d;
+  --color-flash-error: #dc2626;
+  --color-flash-border: #d97706;
+}
+
+/* Apply theme variables to body */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-flash-bg);
+  color: var(--color-flash-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: "Fredoka", Arial, Helvetica, sans-serif;
+}
+
+/* Optional utility classes for convenience */
+.bg-flash-bg {
+  background-color: var(--color-flash-bg);
+}
+.bg-flash-surface {
+  background-color: var(--color-flash-surface);
+}
+.bg-flash-card {
+  background-color: var(--color-flash-card);
+}
+.text-flash {
+  color: var(--color-flash-text);
+}
+.text-flash-muted {
+  color: var(--color-flash-text-muted);
+}
+.bg-flash-primary {
+  background-color: var(--color-flash-primary);
+}
+.bg-flash-accent {
+  background-color: var(--color-flash-accent);
+}
+.text-flash-primary {
+  color: var(--color-flash-primary);
+}
+.text-flash-accent {
+  color: var(--color-flash-accent);
+}
+.border-flash {
+  border-color: var(--color-flash-border);
 }

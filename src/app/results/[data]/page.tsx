@@ -263,6 +263,7 @@ export default function ResultsPage({ params }: PageProps) {
   const correctCount = scores.filter((score) => score === "correct").length;
   const unsureCount = scores.filter((score) => score === "unsure").length;
   const totalCount = scores.length;
+  // eslint-disable-line @typescript-eslint/no-unused-vars
   const quizTitle = quizData?.title || "Untitled Quiz";
 
   return (

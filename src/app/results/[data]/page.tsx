@@ -10,6 +10,7 @@ import {
   faTimes,
   faQuestionCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import Confetti from "react-confetti";
 import {
   decodeQuizData,
   generateQuizUrl,
@@ -17,27 +18,32 @@ import {
   QuizData,
 } from "../../utils/quizEncoding";
 
-// Theme loading script component
-function ThemeScript() {
-  return (
-    <script
-      dangerouslySetInnerHTML={{
-        __html: `
-          (function() {
-            try {
-              const savedTheme = localStorage.getItem('flash-theme') || '';
-              if (savedTheme) {
-                document.body.className = savedTheme;
-              }
-            } catch (e) {}
-          })();
-        `,
-      }}
-    />
-  );
+// Custom hook for window size
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== "undefined" ? window.innerWidth : 1200,
+    height: typeof window !== "undefined" ? window.innerHeight : 800,
+  });
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    // Set initial size
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return windowSize;
 }
 
-// Removed unused Flashcard interface
+// Theme loading script component removed - using useEffect instead
 
 interface PageProps {
   params: Promise<{ data: string }>;
@@ -57,8 +63,12 @@ export default function ResultsPage({ params }: PageProps) {
     type: "success" | "error";
   } | null>(null);
   const [isNotificationFading, setIsNotificationFading] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [percentage, setPercentage] = useState(0);
 
-  // Theme is already applied above, but keep this for consistency
+  const { width, height } = useWindowSize();
+
+  // Apply theme on component mount
   useEffect(() => {
     const savedTheme = localStorage.getItem("flash-theme") || "";
     document.body.className = savedTheme;
@@ -162,6 +172,29 @@ export default function ResultsPage({ params }: PageProps) {
         setRationales(aiResults.map((result) => result.rationale));
         setIsScoring(false);
 
+        // Calculate percentage after scoring is complete
+        const correctCount = aiResults.filter(
+          (result) => result.score === "correct"
+        ).length;
+        const unsureCount = aiResults.filter(
+          (result) => result.score === "unsure"
+        ).length;
+        const totalCount = aiResults.length;
+        const totalPoints = correctCount * 1 + unsureCount * 0.5;
+        const calculatedPercentage =
+          totalCount > 0 ? Math.round((totalPoints / totalCount) * 100) : 0;
+
+        setPercentage(calculatedPercentage);
+
+        // Show confetti if score is over 80%
+        if (calculatedPercentage > 80) {
+          setShowConfetti(true);
+          // Stop confetti after 5 seconds
+          setTimeout(() => {
+            setShowConfetti(false);
+          }, 5000);
+        }
+
         // Generate shareable quiz URL (clean quiz only, no results)
         const cleanQuizData = {
           title: decoded.title,
@@ -212,7 +245,7 @@ export default function ResultsPage({ params }: PageProps) {
   if (!quizData || isScoring) {
     return (
       <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
-        <ThemeScript />
+        {/* Removed ThemeScript component */}
         <div style={{ color: "var(--color-flash-text)" }}>
           {isScoring ? "AI is scoring your answers..." : "Loading results..."}
         </div>
@@ -224,14 +257,41 @@ export default function ResultsPage({ params }: PageProps) {
   const unsureCount = scores.filter((score) => score === "unsure").length;
   const totalCount = scores.length;
 
-  // Calculate percentage: correct = 100%, unsure = 50%, incorrect = 0%
-  const totalPoints = correctCount * 1 + unsureCount * 0.5;
-  const percentage =
-    totalCount > 0 ? Math.round((totalPoints / totalCount) * 100) : 0;
-
   return (
     <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
-      <ThemeScript />
+      {/* Removed ThemeScript component */}
+
+      {/* Confetti */}
+      {showConfetti && width > 0 && height > 0 && (
+        <Confetti
+          width={width}
+          height={height}
+          numberOfPieces={200}
+          recycle={false}
+          gravity={0.1}
+          initialVelocityX={4}
+          initialVelocityY={10}
+          colors={[
+            "#f44336",
+            "#e91e63",
+            "#9c27b0",
+            "#673ab7",
+            "#3f51b5",
+            "#2196f3",
+            "#03a9f4",
+            "#00bcd4",
+            "#009688",
+            "#4CAF50",
+            "#8BC34A",
+            "#CDDC39",
+            "#FFEB3B",
+            "#FFC107",
+            "#FF9800",
+            "#FF5722",
+          ]}
+          tweenDuration={5000}
+        />
+      )}
 
       {/* Toast Notification */}
       {notification && (
@@ -316,6 +376,14 @@ export default function ResultsPage({ params }: PageProps) {
           {correctCount} correct, {unsureCount} partial,{" "}
           {totalCount - correctCount - unsureCount} incorrect
         </div>
+        {percentage > 80 && (
+          <div
+            className="mt-2 text-lg font-semibold"
+            style={{ color: "var(--color-flash-accent)" }}
+          >
+            🎉 Excellent work! 🎉
+          </div>
+        )}
         <div className="mt-4">
           <div
             className="h-4 rounded-full"

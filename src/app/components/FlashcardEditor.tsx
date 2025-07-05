@@ -12,7 +12,7 @@ import ImportExport from "./ImportExport";
 import RotaryThemeSelector from "./RotaryThemeSelector";
 import MobileBurgerMenu from "./MobileBurgerMenu";
 import SimpleThemeButtons from "./SimpleThemeButtons";
-import { encodeQuizData, generateQuizUrl } from "../utils/quizEncoding";
+import { generateQuizUrl } from "../utils/quizEncoding";
 
 interface Flashcard {
   id: string;

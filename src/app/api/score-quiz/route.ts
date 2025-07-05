@@ -88,13 +88,21 @@ Respond in this exact JSON format:
     console.error("AI Scoring Error:", error);
 
     // Fallback to simple text matching if AI fails
-    const { question, correctAnswer, userAnswer } = await request.json();
-    const isSimpleMatch =
-      userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
+    try {
+      const body = await request.json();
+      const { question, correctAnswer, userAnswer } = body;
+      const isSimpleMatch =
+        userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
 
-    return NextResponse.json({
-      score: isSimpleMatch ? "correct" : "incorrect",
-      rationale: "AI unavailable - used exact text matching",
-    });
+      return NextResponse.json({
+        score: isSimpleMatch ? "correct" : "incorrect",
+        rationale: "AI unavailable - used exact text matching",
+      });
+    } catch (fallbackError) {
+      return NextResponse.json(
+        { error: "Failed to process request" },
+        { status: 500 }
+      );
+    }
   }
 }

@@ -121,8 +121,26 @@ export default function ImportExport({
 
   const handleImportSubmit = () => {
     try {
+      let inputText = importText.trim();
+
+      // If it looks like a URL, extract the encoded part
+      if (inputText.includes("/quiz/") || inputText.includes("/results/")) {
+        const urlParts = inputText.split("/");
+        const lastPart = urlParts[urlParts.length - 1];
+        inputText = lastPart;
+        console.log("Extracted encoded data from URL:", inputText);
+      }
+
+      // URL decode in case it's been URL-encoded
+      try {
+        inputText = decodeURIComponent(inputText);
+        console.log("URL decoded:", inputText);
+      } catch (e) {
+        console.log("Not URL encoded or already decoded");
+      }
+
       // Use the utility function for consistent decoding
-      const importedData = decodeQuizData(importText.trim());
+      const importedData = decodeQuizData(inputText);
 
       console.log("Import Data:", importedData);
 
@@ -250,7 +268,7 @@ export default function ImportExport({
             className="block text-sm font-medium"
             style={{ color: "var(--color-flash-text)" }}
           >
-            Paste your flashcard data:
+            Paste your flashcard data or quiz URL:
           </label>
           <textarea
             value={importText}

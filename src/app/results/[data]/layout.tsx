@@ -9,7 +9,7 @@ interface PageProps {
 // Helper function to calculate score from user answers
 function calculateScoreFromAnswers(
   userAnswers: string[],
-  cards: any[]
+  cards: { answer: string }[]
 ): number {
   // Simple fallback scoring using exact string matching
   // (since we can't run AI scoring server-side)

@@ -126,15 +126,36 @@ export default function ImportExport({
 
       console.log("Import Data:", importedData);
 
-      // Additional validation using the utility
-      if (!validateQuizData(importedData)) {
+      // Check if it's results data (has userAnswers) and extract just the quiz part
+      let cleanQuizData;
+      if (importedData.userAnswers && importedData.shuffleOrder) {
+        // This is results data - extract the clean quiz
+        cleanQuizData = {
+          title: importedData.title,
+          instructions: importedData.instructions,
+          cards: importedData.cards,
+          createdAt: importedData.createdAt,
+          version: importedData.version,
+        };
+        console.log(
+          "Detected results data, extracting clean quiz:",
+          cleanQuizData
+        );
+      } else {
+        // This is already clean quiz data
+        cleanQuizData = importedData;
+        console.log("Detected clean quiz data:", cleanQuizData);
+      }
+
+      // Validate the clean quiz data
+      if (!validateQuizData(cleanQuizData)) {
         throw new Error("Invalid quiz data structure");
       }
 
       onImport({
-        cards: importedData.cards,
-        title: importedData.title || "",
-        instructions: importedData.instructions || "",
+        cards: cleanQuizData.cards,
+        title: cleanQuizData.title || "",
+        instructions: cleanQuizData.instructions || "",
       });
 
       setShowImportField(false);

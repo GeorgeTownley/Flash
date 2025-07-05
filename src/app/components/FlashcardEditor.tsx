@@ -141,8 +141,8 @@ export default function FlashCardEditor({
     } else {
       const encoded = btoa(JSON.stringify(testData));
       const testUrl = `/quiz/${encoded}`;
+      window.location.href = testUrl;
       console.log("Test URL:", testUrl);
-      alert(`Test URL generated! Check console for now.`);
     }
   };
 
@@ -284,15 +284,24 @@ export default function FlashCardEditor({
         ))}
       </div>
 
+      {/* Add Card Button */}
       <AddCardButton onClick={addCard} />
+
+      {/* Import/Export */}
       <ImportExport
         cards={cards}
         title={title}
         instructions={instructions}
         onImport={handleImport}
       />
+
+      {/* Start Test Button */}
       <StartTestButton onClick={handleStartTest} disabled={!hasValidCards} />
+
+      {/* Desktop Rotary Theme Selector */}
       <RotaryThemeSelector />
+
+      {/* Mobile Burger Menu */}
       <MobileBurgerMenu sections={mobileMenuSections} />
     </div>
   );

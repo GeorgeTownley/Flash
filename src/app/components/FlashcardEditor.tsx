@@ -2,9 +2,16 @@
 "use client";
 
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faQuestionCircle, faPlay } from "@fortawesome/free-solid-svg-icons";
+
 import FlashCardItem from "./FlashCardItem";
 import AddCardButton from "./AddCardButton";
 import StartTestButton from "./StartTestButton";
+import ImportExport from "./ImportExport";
+import RotaryThemeSelector from "./RotaryThemeSelector";
+import MobileBurgerMenu from "./MobileBurgerMenu";
+import SimpleThemeButtons from "./SimpleThemeButtons";
 
 interface Flashcard {
   id: string;
@@ -85,7 +92,6 @@ export default function FlashCardEditor({
     if (onStartTest) {
       onStartTest(testData);
     } else {
-      // Default behavior - generate URL and log
       const encoded = btoa(JSON.stringify(testData));
       const testUrl = `/quiz/${encoded}`;
       console.log("Test URL:", testUrl);
@@ -93,25 +99,80 @@ export default function FlashCardEditor({
     }
   };
 
+  const handleImport = (importedData: {
+    cards: Flashcard[];
+    title: string;
+    instructions: string;
+  }) => {
+    setCards(importedData.cards);
+    setTitle(importedData.title);
+    setInstructions(importedData.instructions);
+    onCardsChange?.(importedData.cards);
+  };
+
+  const startTour = () => {
+    // Placeholder for React Joyride tour
+    console.log("Starting tour...");
+    alert("Tour would start here! (React Joyride integration)");
+  };
+
   const hasValidCards = cards.some(
     (card) => card.question.trim() && card.answer.trim()
   );
 
+  // Define mobile menu sections
+  const mobileMenuSections = [
+    {
+      title: "Styles",
+      items: <SimpleThemeButtons />,
+    },
+    {
+      title: "Help",
+      items: (
+        <div className="space-y-2">
+          <button
+            onClick={startTour}
+            className="w-full flex items-center space-x-3 p-3 rounded-lg transition-all hover:scale-[1.02] focus:outline-none hover:shadow-md"
+            style={{
+              backgroundColor: "var(--color-flash-accent, #5d2e1a)",
+              color: "white",
+            }}
+          >
+            <FontAwesomeIcon icon={faQuestionCircle} className="w-5 h-5" />
+            <span className="font-medium">Take a Tour</span>
+          </button>
+        </div>
+      ),
+    },
+    {
+      title: "Actions",
+      items: (
+        <div className="space-y-2">
+          <button
+            onClick={handleStartTest}
+            disabled={!hasValidCards}
+            className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all hover:scale-[1.02] focus:outline-none ${
+              hasValidCards
+                ? "hover:shadow-md"
+                : "opacity-50 cursor-not-allowed"
+            }`}
+            style={{
+              backgroundColor: hasValidCards
+                ? "var(--color-flash-accent, #5d2e1a)"
+                : "#9ca3af",
+              color: "white",
+            }}
+          >
+            <FontAwesomeIcon icon={faPlay} className="w-5 h-5" />
+            <span className="font-medium">Start Quiz</span>
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col items-center p-4 space-y-6 w-full max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1
-          className="text-2xl font-bold"
-          style={{ color: "var(--color-flash-primary)" }}
-        >
-          Create Flashcards
-        </h1>
-        <p className="text-sm" style={{ color: "var(--color-flash-text)" }}>
-          Add questions and answers to test yourself
-        </p>
-      </div>
-
       {/* Optional Title Input */}
       <div className="w-full">
         <label
@@ -167,8 +228,22 @@ export default function FlashCardEditor({
       {/* Add Card Button */}
       <AddCardButton onClick={addCard} />
 
+      {/* Import/Export */}
+      <ImportExport
+        cards={cards}
+        title={title}
+        instructions={instructions}
+        onImport={handleImport}
+      />
+
       {/* Start Test Button */}
       <StartTestButton onClick={handleStartTest} disabled={!hasValidCards} />
+
+      {/* Desktop Rotary Theme Selector */}
+      <RotaryThemeSelector />
+
+      {/* Mobile Burger Menu */}
+      <MobileBurgerMenu sections={mobileMenuSections} />
     </div>
   );
 }

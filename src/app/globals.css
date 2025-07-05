@@ -16,6 +16,21 @@
   --color-flash-border: #d6c4b0;
 }
 
+/*flash theme*/
+.theme-flash {
+  --color-flash-bg: #f5f1eb;
+  --color-flash-surface: #ede5d8;
+  --color-flash-card: #ffffff;
+  --color-flash-text: #2d1810;
+  --color-flash-text-muted: #6b4423;
+  --color-flash-primary: #5d2e1a;
+  --color-flash-accent: #8b2635;
+  --color-flash-accent-light: #a53545;
+  --color-flash-success: #16a34a;
+  --color-flash-error: #dc2626;
+  --color-flash-border: #d6c4b0;
+}
+
 /* Ocean Theme */
 .theme-ocean {
   --color-flash-bg: #0f172a;

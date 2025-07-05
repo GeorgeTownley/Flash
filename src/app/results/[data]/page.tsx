@@ -453,26 +453,6 @@ export default function ResultsPage({ params }: PageProps) {
         })}
       </div>
 
-      {/* AI Analysis Placeholder */}
-      <div
-        className="w-full p-4 rounded-lg"
-        style={{
-          backgroundColor: "var(--color-flash-surface)",
-          border: "1px solid var(--color-flash-border)",
-        }}
-      >
-        <h3
-          className="font-semibold mb-2"
-          style={{ color: "var(--color-flash-text)" }}
-        >
-          AI Analysis
-        </h3>
-        <p style={{ color: "var(--color-flash-text-muted)" }}>
-          Coming soon: Personalized feedback and study recommendations powered
-          by AI!
-        </p>
-      </div>
-
       {/* Action Buttons */}
       <div className="w-full grid grid-cols-2 gap-3">
         <button

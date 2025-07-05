@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Metadata } from "next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShare,
@@ -44,85 +43,8 @@ function useWindowSize() {
   return windowSize;
 }
 
-// Theme loading script component removed - using useEffect instead
-
 interface PageProps {
   params: Promise<{ data: string }>;
-}
-
-// Helper function to calculate score from AI results
-function calculateScoreFromAnswers(
-  userAnswers: string[],
-  cards: any[]
-): number {
-  // Simple fallback scoring - you might want to make this more sophisticated
-  // For now, we'll do exact string matching since we can't run AI scoring server-side
-  let correct = 0;
-  userAnswers.forEach((userAnswer, index) => {
-    const card = cards[index];
-    if (userAnswer.toLowerCase().trim() === card.answer.toLowerCase().trim()) {
-      correct++;
-    }
-  });
-  return userAnswers.length > 0
-    ? Math.round((correct / userAnswers.length) * 100)
-    : 0;
-}
-
-// Generate metadata server-side for proper OG tags
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
-  try {
-    const resolvedParams = await params;
-    const decoded = decodeQuizData(resolvedParams.data);
-
-    if (!hasResults(decoded)) {
-      return {
-        title: "Quiz Results",
-        description: "View your quiz results",
-      };
-    }
-
-    const quizTitle = decoded.title || "Untitled Quiz";
-
-    // Calculate percentage using simple matching (fallback since we can't run AI server-side)
-    const percentage = calculateScoreFromAnswers(
-      decoded.userAnswers!,
-      decoded.cards
-    );
-
-    return {
-      title: `I got ${percentage}% in ${quizTitle}!`,
-      description: `I scored ${percentage}% in this ${quizTitle} quiz! Think you can beat my score? Try it and find out what you can get!`,
-      openGraph: {
-        title: `I got ${percentage}% in this ${quizTitle} quiz!`,
-        description: `I scored ${percentage}%! Think you can beat my score? Try this ${quizTitle} quiz and find out what you can get!`,
-        images: [
-          {
-            url: "/flash-og-image.png",
-            width: 1200,
-            height: 630,
-            alt: `${quizTitle} Quiz Results`,
-          },
-        ],
-        type: "website",
-        siteName: "Flash Quiz",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: `I got ${percentage}% in this ${quizTitle} quiz!`,
-        description: `I scored ${percentage}%! Think you can beat my score? Try this quiz and find out what you can get!`,
-        images: ["/flash-og-image.png"],
-      },
-    };
-  } catch (error) {
-    console.error("Error generating metadata:", error);
-    return {
-      title: "Quiz Results",
-      description: "View your quiz results",
-    };
-  }
 }
 
 export default function ResultsPage({ params }: PageProps) {
@@ -141,7 +63,6 @@ export default function ResultsPage({ params }: PageProps) {
   const [isNotificationFading, setIsNotificationFading] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [percentage, setPercentage] = useState(0);
-
   const [currentUrl, setCurrentUrl] = useState<string>("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [siteUrl, setSiteUrl] = useState<string>("");
@@ -332,7 +253,6 @@ export default function ResultsPage({ params }: PageProps) {
   if (!quizData || isScoring) {
     return (
       <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
-        {/* Removed ThemeScript component */}
         <div style={{ color: "var(--color-flash-text)" }}>
           {isScoring ? "AI is scoring your answers..." : "Loading results..."}
         </div>
@@ -343,11 +263,10 @@ export default function ResultsPage({ params }: PageProps) {
   const correctCount = scores.filter((score) => score === "correct").length;
   const unsureCount = scores.filter((score) => score === "unsure").length;
   const totalCount = scores.length;
+  const quizTitle = quizData?.title || "Untitled Quiz";
 
   return (
-    <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
-      {/* Removed ThemeScript component */}
-
+    <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto md:max-w-2xl lg:max-w-4xl">
       {/* Confetti */}
       {showConfetti && width > 0 && height > 0 && (
         <Confetti
@@ -412,12 +331,12 @@ export default function ResultsPage({ params }: PageProps) {
       )}
 
       {/* Flash Logo */}
-      <div className="relative w-20 h-10">
+      <div className="relative w-60 h-30 sm:w-72 sm:h-36 md:w-90 md:h-45 pt-16 md:pt-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/flash.png"
           alt="Flash!"
-          className="w-full h-full opacity-0"
+          className="w-full h-full opacity-0 "
         />
         <div
           className="absolute inset-0"

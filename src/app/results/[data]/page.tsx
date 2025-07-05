@@ -66,12 +66,21 @@ export default function ResultsPage({ params }: PageProps) {
   const [showConfetti, setShowConfetti] = useState(false);
   const [percentage, setPercentage] = useState(0);
 
+  const [currentUrl, setCurrentUrl] = useState<string>("");
+  const [siteUrl, setSiteUrl] = useState<string>("");
+
   const { width, height } = useWindowSize();
 
-  // Apply theme on component mount
+  // Apply theme on component mount and set URLs
   useEffect(() => {
     const savedTheme = localStorage.getItem("flash-theme") || "";
     document.body.className = savedTheme;
+
+    // Set URLs safely on client side
+    if (typeof window !== "undefined") {
+      setCurrentUrl(window.location.href);
+      setSiteUrl(window.location.origin);
+    }
   }, []);
 
   const showNotification = (message: string, type: "success" | "error") => {
@@ -189,10 +198,10 @@ export default function ResultsPage({ params }: PageProps) {
         // Show confetti if score is over 80%
         if (calculatedPercentage > 80) {
           setShowConfetti(true);
-          // Stop confetti after 5 seconds
+          // Stop confetti after 10 seconds
           setTimeout(() => {
             setShowConfetti(false);
-          }, 5000);
+          }, 10000);
         }
 
         // Generate shareable quiz URL (clean quiz only, no results)
@@ -217,8 +226,9 @@ export default function ResultsPage({ params }: PageProps) {
 
   const copyShareUrl = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      showNotification("Quiz link copied to clipboard!", "success");
+      // Use the state value instead of directly accessing window
+      await navigator.clipboard.writeText(currentUrl);
+      showNotification("Results link copied to clipboard!", "success");
     } catch {
       showNotification("Failed to copy link", "error");
     }
@@ -258,9 +268,7 @@ export default function ResultsPage({ params }: PageProps) {
   const totalCount = scores.length;
 
   return (
-    <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto md:max-w-2xl lg:max-w-4xl">
-      {/* Removed ThemeScript component */}
-
+    <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
       {/* Confetti */}
       {showConfetti && width > 0 && height > 0 && (
         <Confetti
@@ -289,7 +297,7 @@ export default function ResultsPage({ params }: PageProps) {
             "#FF9800",
             "#FF5722",
           ]}
-          tweenDuration={20000}
+          tweenDuration={10000}
         />
       )}
 
@@ -325,12 +333,12 @@ export default function ResultsPage({ params }: PageProps) {
       )}
 
       {/* Flash Logo */}
-      <div className="relative w-60 h-30 sm:w-72 sm:h-36 md:w-90 md:h-45 pt-16 md:pt-0">
+      <div className="relative w-20 h-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/flash.png"
           alt="Flash!"
-          className="w-full h-full opacity-0 "
+          className="w-full h-full opacity-0"
         />
         <div
           className="absolute inset-0"
@@ -558,7 +566,7 @@ export default function ResultsPage({ params }: PageProps) {
           }}
         >
           <FontAwesomeIcon icon={faShare} className="w-4 h-4" />
-          Share Quiz
+          Share My Results
         </button>
       </div>
     </div>

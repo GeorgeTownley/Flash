@@ -37,11 +37,7 @@ function ThemeScript() {
   );
 }
 
-interface Flashcard {
-  id: string;
-  question: string;
-  answer: string;
-}
+// Removed unused Flashcard interface
 
 interface PageProps {
   params: Promise<{ data: string }>;
@@ -459,7 +455,7 @@ export default function ResultsPage({ params }: PageProps) {
                         className="italic text-sm leading-relaxed block"
                         style={{ color: "var(--color-flash-text)" }}
                       >
-                        "{rationale}"
+                        &ldquo;{rationale}&rdquo;
                       </span>
                     </div>
                   </div>
@@ -468,26 +464,6 @@ export default function ResultsPage({ params }: PageProps) {
             </div>
           );
         })}
-      </div>
-
-      {/* AI Analysis Placeholder */}
-      <div
-        className="w-full p-4 rounded-lg"
-        style={{
-          backgroundColor: "var(--color-flash-surface)",
-          border: "1px solid var(--color-flash-border)",
-        }}
-      >
-        <h3
-          className="font-semibold mb-2"
-          style={{ color: "var(--color-flash-text)" }}
-        >
-          AI Analysis
-        </h3>
-        <p style={{ color: "var(--color-flash-text-muted)" }}>
-          Coming soon: Personalized feedback and study recommendations powered
-          by AI!
-        </p>
       </div>
 
       {/* Action Buttons */}

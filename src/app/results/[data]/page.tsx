@@ -289,7 +289,7 @@ export default function ResultsPage({ params }: PageProps) {
             "#FF9800",
             "#FF5722",
           ]}
-          tweenDuration={5000}
+          tweenDuration={20000}
         />
       )}
 

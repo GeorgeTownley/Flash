@@ -243,7 +243,7 @@ export default function FlashCardEditor({
       {/* Optional Title Input */}
       <div className="w-full">
         <label
-          className="block text-sm font-medium mb-1"
+          className="block text-lg font-medium mb-1"
           style={{ color: "var(--color-flash-text)" }}
         >
           Quiz Title (Optional)
@@ -262,10 +262,10 @@ export default function FlashCardEditor({
         />
       </div>
 
-      {/* Optional Instructions Input */}
+      {/* Optional InstructFions Input */}
       <div className="w-full">
         <label
-          className="block text-sm font-medium mb-1"
+          className="block text-lgF font-medium mb-1"
           style={{ color: "var(--color-flash-text)" }}
         >
           Instructions (Optional)
@@ -288,7 +288,7 @@ export default function FlashCardEditor({
         {cards.map((card, index) => (
           <div
             key={card.id}
-            className="transition-all duration-300 ease-out"
+            className="transition-all duration-300 ease-out w-full"
             data-card-id={card.id}
           >
             <FlashCardItem

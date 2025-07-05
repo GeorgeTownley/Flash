@@ -8,13 +8,13 @@ import {
   faDroplet,
   faLeaf,
   faMountainSun,
-  faMagic,
 } from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition } from "@fortawesome/free-solid-svg-icons";
 
 interface Theme {
   id: string;
   name: string;
-  icon: any;
+  icon: IconDefinition;
   bgColor: string;
   className: string;
   textColor: string;

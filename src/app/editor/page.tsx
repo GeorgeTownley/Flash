@@ -1,7 +1,10 @@
+import FlashcardEditor from "../components/FlashcardEditor";
+
 export default function EditorPage() {
   return (
-    <div className="p-8">
-      <div className="relative w-32 h-32 mb-4">
+    <div className="flex flex-col items-center p-4 space-y-4">
+      {/* Logo */}
+      <div className="relative w-60 h-60">
         <img
           src="/flash.png"
           alt="Flash!"
@@ -19,14 +22,21 @@ export default function EditorPage() {
           }}
         />
       </div>
+
       <h1
-        className="text-3xl font-bold"
+        className="text-2xl font-bold text-center"
         style={{ color: "var(--color-flash-primary)" }}
       >
-        Hello World - Editor Page
+        Flash! Flashcard Creator
       </h1>
-      <p style={{ color: "var(--color-flash-text)" }}>
-        This will be the flashcard editor!
+
+      <FlashcardEditor />
+
+      <p
+        className="text-center text-sm"
+        style={{ color: "var(--color-flash-text)" }}
+      >
+        Create your flashcards and test yourself
       </p>
     </div>
   );

@@ -1,7 +1,7 @@
 // components/FlashCardItem.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 
 interface Flashcard {
   id: string;
@@ -36,6 +36,15 @@ export default function FlashCardItem({
     }, 600);
   };
 
+  const handleTextareaChange =
+    (field: "question" | "answer") =>
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onUpdate(field, e.target.value);
+      // Auto-resize the textarea
+      e.target.style.height = "auto";
+      e.target.style.height = e.target.scrollHeight + "px";
+    };
+
   return (
     <div
       className="relative"
@@ -61,15 +70,16 @@ export default function FlashCardItem({
             >
               Question
             </label>
-            <input
-              type="text"
+            <textarea
               value={card.question}
-              onChange={(e) => onUpdate("question", e.target.value)}
+              onChange={handleTextareaChange("question")}
               placeholder="Enter your question..."
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent] transition-all duration-200"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent] transition-all duration-200 resize-none"
               style={{
                 borderColor: "var(--color-flash-border)",
+                overflow: "hidden",
               }}
+              rows={1}
             />
           </div>
 
@@ -80,15 +90,16 @@ export default function FlashCardItem({
             >
               Answer
             </label>
-            <input
-              type="text"
+            <textarea
               value={card.answer}
-              onChange={(e) => onUpdate("answer", e.target.value)}
+              onChange={handleTextareaChange("answer")}
               placeholder="Enter the answer..."
-              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent] transition-all duration-200"
+              className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent] transition-all duration-200 resize-none"
               style={{
                 borderColor: "var(--color-flash-border)",
+                overflow: "hidden",
               }}
+              rows={1}
             />
           </div>
         </div>

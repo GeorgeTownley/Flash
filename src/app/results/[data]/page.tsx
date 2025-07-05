@@ -258,7 +258,7 @@ export default function ResultsPage({ params }: PageProps) {
   const totalCount = scores.length;
 
   return (
-    <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
+    <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto md:max-w-2xl lg:max-w-4xl">
       {/* Removed ThemeScript component */}
 
       {/* Confetti */}
@@ -325,12 +325,12 @@ export default function ResultsPage({ params }: PageProps) {
       )}
 
       {/* Flash Logo */}
-      <div className="relative w-20 h-10">
+      <div className="relative w-60 h-30 sm:w-72 sm:h-36 md:w-90 md:h-45 pt-16 md:pt-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/flash.png"
           alt="Flash!"
-          className="w-full h-full opacity-0"
+          className="w-full h-full opacity-0 "
         />
         <div
           className="absolute inset-0"

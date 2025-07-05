@@ -11,10 +11,24 @@ import {
   QuizData,
 } from "../../utils/quizEncoding";
 
-// Apply theme immediately to prevent flash
-if (typeof window !== "undefined") {
-  const savedTheme = localStorage.getItem("flash-theme") || "";
-  document.body.className = savedTheme;
+// Theme loading script component
+function ThemeScript() {
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function() {
+            try {
+              const savedTheme = localStorage.getItem('flash-theme') || '';
+              if (savedTheme) {
+                document.body.className = savedTheme;
+              }
+            } catch (e) {}
+          })();
+        `,
+      }}
+    />
+  );
 }
 
 interface Flashcard {
@@ -28,7 +42,6 @@ interface PageProps {
 }
 
 export default function QuizPage({ params }: PageProps) {
-  const [deckCode, setDeckCode] = useState<string>("");
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [shuffledCards, setShuffledCards] = useState<Flashcard[]>([]);
   const [shuffleOrder, setShuffleOrder] = useState<number[]>([]);
@@ -44,16 +57,6 @@ export default function QuizPage({ params }: PageProps) {
     document.body.className = savedTheme;
   }, []);
 
-  // Shuffle array function (remove since we're using utility)
-  // const shuffleArray = <T,>(array: T[]): T[] => {
-  //   const shuffled = [...array];
-  //   for (let i = shuffled.length - 1; i > 0; i--) {
-  //     const j = Math.floor(Math.random() * (i + 1));
-  //     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  //   }
-  //   return shuffled;
-  // };
-
   // Load and decode quiz data
   useEffect(() => {
     async function loadQuizData() {
@@ -67,8 +70,6 @@ export default function QuizPage({ params }: PageProps) {
         }
 
         const code = resolvedParams.data;
-        setDeckCode(code);
-
         console.log("Raw deck code:", code);
 
         // Use the utility function to decode
@@ -144,18 +145,6 @@ export default function QuizPage({ params }: PageProps) {
     }
   };
 
-  const restartQuiz = () => {
-    setQuizStarted(false);
-    setCurrentCardIndex(0);
-    setUserAnswer("");
-    setUserAnswers(new Array(shuffledCards.length).fill(""));
-    const { shuffledCards: cards, shuffleOrder: order } = shuffleCards(
-      quizData?.cards || []
-    );
-    setShuffledCards(cards);
-    setShuffleOrder(order);
-  };
-
   if (error) {
     return (
       <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
@@ -191,6 +180,7 @@ export default function QuizPage({ params }: PageProps) {
       <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
         {/* Flash Logo */}
         <div className="relative w-20 h-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/flash.png"
             alt="Flash!"
@@ -264,8 +254,10 @@ export default function QuizPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col items-center p-4 space-y-6 max-w-2xl mx-auto">
+      <ThemeScript />
       {/* Flash Logo */}
       <div className="relative w-20 h-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/flash.png"
           alt="Flash!"

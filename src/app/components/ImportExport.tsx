@@ -135,7 +135,7 @@ export default function ImportExport({
       try {
         inputText = decodeURIComponent(inputText);
         console.log("URL decoded:", inputText);
-      } catch (e) {
+      } catch {
         console.log("Not URL encoded or already decoded");
       }
 
@@ -268,7 +268,7 @@ export default function ImportExport({
             className="block text-sm font-medium"
             style={{ color: "var(--color-flash-text)" }}
           >
-            Paste your flashcard data or quiz URL:
+            Paste your flashcard data:
           </label>
           <textarea
             value={importText}

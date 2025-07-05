@@ -91,6 +91,8 @@ export default function ResultsPage({ params }: PageProps) {
     userAnswer: string
   ) => {
     try {
+      console.log("Scoring:", { question, correctAnswer, userAnswer });
+
       const response = await fetch("/api/score-quiz", {
         method: "POST",
         headers: {
@@ -103,22 +105,29 @@ export default function ResultsPage({ params }: PageProps) {
         }),
       });
 
+      console.log("API Response status:", response.status);
+
       if (!response.ok) {
-        throw new Error("Failed to score answer");
+        const errorText = await response.text();
+        console.log("API Error response:", errorText);
+        throw new Error(`API returned ${response.status}: ${errorText}`);
       }
 
       const result = await response.json();
+      console.log("AI Result:", result);
       return result;
     } catch (error) {
       console.error("AI scoring failed:", error);
       // Fallback to simple matching
-      return {
+      const fallbackResult = {
         score:
           userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim()
             ? "correct"
             : "incorrect",
         rationale: "AI unavailable - used exact text matching",
       };
+      console.log("Using fallback result:", fallbackResult);
+      return fallbackResult;
     }
   };
 
@@ -157,8 +166,16 @@ export default function ResultsPage({ params }: PageProps) {
         setRationales(aiResults.map((result) => result.rationale));
         setIsScoring(false);
 
-        // Generate shareable quiz URL (original quiz, not results)
-        const quizUrl = generateQuizUrl(decoded);
+        // Generate shareable quiz URL (clean quiz only, no results)
+        const cleanQuizData = {
+          title: decoded.title,
+          instructions: decoded.instructions,
+          cards: decoded.cards,
+          createdAt: decoded.createdAt,
+          version: decoded.version,
+          // Explicitly exclude userAnswers and shuffleOrder
+        };
+        const quizUrl = generateQuizUrl(cleanQuizData);
         setShareUrl(quizUrl);
       } catch (err) {
         console.error("Results decode error:", err);
@@ -253,6 +270,7 @@ export default function ResultsPage({ params }: PageProps) {
 
       {/* Flash Logo */}
       <div className="relative w-20 h-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/flash.png"
           alt="Flash!"
@@ -337,7 +355,6 @@ export default function ResultsPage({ params }: PageProps) {
           // Determine colors and icons based on AI score
           const isCorrect = score === "correct";
           const isUnsure = score === "unsure";
-          const isIncorrect = score === "incorrect";
 
           const borderColor = isCorrect
             ? "#10b981" // Green-500
@@ -451,6 +468,26 @@ export default function ResultsPage({ params }: PageProps) {
             </div>
           );
         })}
+      </div>
+
+      {/* AI Analysis Placeholder */}
+      <div
+        className="w-full p-4 rounded-lg"
+        style={{
+          backgroundColor: "var(--color-flash-surface)",
+          border: "1px solid var(--color-flash-border)",
+        }}
+      >
+        <h3
+          className="font-semibold mb-2"
+          style={{ color: "var(--color-flash-text)" }}
+        >
+          AI Analysis
+        </h3>
+        <p style={{ color: "var(--color-flash-text-muted)" }}>
+          Coming soon: Personalized feedback and study recommendations powered
+          by AI!
+        </p>
       </div>
 
       {/* Action Buttons */}

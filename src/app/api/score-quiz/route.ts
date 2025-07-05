@@ -90,7 +90,7 @@ Respond in this exact JSON format:
     // Fallback to simple text matching if AI fails
     try {
       const body = await request.json();
-      const { question, correctAnswer, userAnswer } = body;
+      const { correctAnswer, userAnswer } = body;
       const isSimpleMatch =
         userAnswer.toLowerCase().trim() === correctAnswer.toLowerCase().trim();
 
@@ -98,7 +98,7 @@ Respond in this exact JSON format:
         score: isSimpleMatch ? "correct" : "incorrect",
         rationale: "AI unavailable - used exact text matching",
       });
-    } catch (fallbackError) {
+    } catch {
       return NextResponse.json(
         { error: "Failed to process request" },
         { status: 500 }

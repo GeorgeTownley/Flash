@@ -153,19 +153,25 @@ export function hasResults(quizData: QuizData): boolean {
 /**
  * Validates quiz data structure
  */
-export function validateQuizData(data: any): data is QuizData {
+export function validateQuizData(data: unknown): data is QuizData {
   return (
-    data &&
+    data !== null &&
+    data !== undefined &&
     typeof data === "object" &&
-    Array.isArray(data.cards) &&
-    data.cards.length > 0 &&
-    data.cards.every(
-      (card: any) =>
-        card &&
+    "cards" in data &&
+    Array.isArray((data as QuizData).cards) &&
+    (data as QuizData).cards.length > 0 &&
+    (data as QuizData).cards.every(
+      (card: unknown) =>
+        card !== null &&
+        card !== undefined &&
         typeof card === "object" &&
-        typeof card.id === "string" &&
-        typeof card.question === "string" &&
-        typeof card.answer === "string"
+        "id" in card &&
+        "question" in card &&
+        "answer" in card &&
+        typeof (card as Flashcard).id === "string" &&
+        typeof (card as Flashcard).question === "string" &&
+        typeof (card as Flashcard).answer === "string"
     )
   );
 }

@@ -1,6 +1,10 @@
 // src/app/quiz/[data]/page.tsx
-export default function QuizPage({ params }: { params: { data: string } }) {
-  const deckCode = params.data;
+interface PageProps {
+  params: Promise<{ data: string }>;
+}
+
+export default async function QuizPage({ params }: PageProps) {
+  const { data: deckCode } = await params;
 
   // Try to decode and display quiz info
   let quizInfo = null;

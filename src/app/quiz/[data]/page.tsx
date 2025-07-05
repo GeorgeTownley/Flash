@@ -4,7 +4,18 @@
 import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import { decodeQuizData, QuizData } from "../../utils/quizEncoding";
+import {
+  decodeQuizData,
+  generateResultsUrl,
+  shuffleCards,
+  QuizData,
+} from "../../utils/quizEncoding";
+
+// Apply theme immediately to prevent flash
+if (typeof window !== "undefined") {
+  const savedTheme = localStorage.getItem("flash-theme") || "";
+  document.body.className = savedTheme;
+}
 
 interface Flashcard {
   id: string;
@@ -20,21 +31,28 @@ export default function QuizPage({ params }: PageProps) {
   const [deckCode, setDeckCode] = useState<string>("");
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [shuffledCards, setShuffledCards] = useState<Flashcard[]>([]);
+  const [shuffleOrder, setShuffleOrder] = useState<number[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [quizStarted, setQuizStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Shuffle array function
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
+  // Theme is already applied above, but keep this for consistency
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("flash-theme") || "";
+    document.body.className = savedTheme;
+  }, []);
+
+  // Shuffle array function (remove since we're using utility)
+  // const shuffleArray = <T,>(array: T[]): T[] => {
+  //   const shuffled = [...array];
+  //   for (let i = shuffled.length - 1; i > 0; i--) {
+  //     const j = Math.floor(Math.random() * (i + 1));
+  //     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  //   }
+  //   return shuffled;
+  // };
 
   // Load and decode quiz data
   useEffect(() => {
@@ -58,7 +76,11 @@ export default function QuizPage({ params }: PageProps) {
         console.log("Decoded quiz data:", quiz);
 
         setQuizData(quiz);
-        setShuffledCards(shuffleArray(quiz.cards));
+        const { shuffledCards: cards, shuffleOrder: order } = shuffleCards(
+          quiz.cards
+        );
+        setShuffledCards(cards);
+        setShuffleOrder(order);
         setUserAnswers(new Array(quiz.cards.length).fill(""));
       } catch (err) {
         console.error("Detailed error:", err);
@@ -95,8 +117,30 @@ export default function QuizPage({ params }: PageProps) {
       setCurrentCardIndex(currentCardIndex + 1);
       setUserAnswer("");
     } else {
-      // Quiz completed - for now just show completion
-      alert("Quiz completed! Scoring coming soon.");
+      // Quiz completed - redirect to results page
+      if (!quizData) {
+        alert("Quiz data not available");
+        return;
+      }
+
+      const resultsData: QuizData = {
+        title: quizData.title,
+        instructions: quizData.instructions,
+        cards: quizData.cards,
+        createdAt: quizData.createdAt,
+        version: quizData.version,
+        userAnswers: newAnswers,
+        shuffleOrder: shuffleOrder,
+      };
+
+      try {
+        const resultsUrl = generateResultsUrl(resultsData);
+        console.log("Generated results URL:", resultsUrl);
+        window.location.href = resultsUrl;
+      } catch (error) {
+        console.error("Failed to generate results URL:", error);
+        alert("Quiz completed! Results page coming soon.");
+      }
     }
   };
 
@@ -105,7 +149,11 @@ export default function QuizPage({ params }: PageProps) {
     setCurrentCardIndex(0);
     setUserAnswer("");
     setUserAnswers(new Array(shuffledCards.length).fill(""));
-    setShuffledCards(shuffleArray(quizData?.cards || []));
+    const { shuffledCards: cards, shuffleOrder: order } = shuffleCards(
+      quizData?.cards || []
+    );
+    setShuffledCards(cards);
+    setShuffleOrder(order);
   };
 
   if (error) {

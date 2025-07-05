@@ -24,11 +24,30 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedTheme = localStorage.getItem('flash-theme') || '';
+                  // Note: Replace these placeholders with your actual font class values
+                  const fontClasses = 'geist-sans-variable geist-mono-variable antialiased';
+                  if (savedTheme) {
+                    document.body.className = savedTheme + ' ' + fontClasses;
+                  } else {
+                    document.body.className = fontClasses;
+                  }
+                } catch (e) {
+                  // Fallback font classes - replace with your actual values
+                  document.body.className = 'geist-sans-variable geist-mono-variable antialiased';
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body suppressHydrationWarning={true}>{children}</body>
     </html>
   );
 }

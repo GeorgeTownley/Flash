@@ -12,6 +12,9 @@ export interface QuizData {
   cards: Flashcard[];
   createdAt?: string;
   version?: string;
+  // Optional fields for results
+  userAnswers?: string[];
+  shuffleOrder?: number[]; // Indices to preserve card order
 }
 
 /**
@@ -73,13 +76,78 @@ export function decodeQuizData(encodedData: string): QuizData {
 }
 
 /**
- * Generates a shareable quiz URL
+ * Generates a shareable quiz URL (without results)
  */
 export function generateQuizUrl(quizData: QuizData, baseUrl?: string): string {
-  const encoded = encodeQuizData(quizData);
+  // Create clean quiz data without results
+  const cleanQuizData: QuizData = {
+    title: quizData.title,
+    instructions: quizData.instructions,
+    cards: quizData.cards,
+    createdAt: quizData.createdAt,
+    version: quizData.version,
+    // Exclude userAnswers and shuffleOrder
+  };
+
+  const encoded = encodeQuizData(cleanQuizData);
   const base =
     baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
   return `${base}/quiz/${encoded}`;
+}
+
+/**
+ * Generates a results URL (with user answers)
+ */
+export function generateResultsUrl(
+  quizData: QuizData,
+  baseUrl?: string
+): string {
+  const encoded = encodeQuizData(quizData);
+  const base =
+    baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
+  return `${base}/results/${encoded}`;
+}
+
+/**
+ * Creates shuffled cards and returns both cards and order indices
+ */
+export function shuffleCards(cards: Flashcard[]): {
+  shuffledCards: Flashcard[];
+  shuffleOrder: number[];
+} {
+  const indices = Array.from({ length: cards.length }, (_, i) => i);
+
+  // Fisher-Yates shuffle of indices
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+
+  const shuffledCards = indices.map((i) => cards[i]);
+
+  return { shuffledCards, shuffleOrder: indices };
+}
+
+/**
+ * Restores original card order using shuffle indices
+ */
+export function restoreCardOrder(
+  shuffledCards: Flashcard[],
+  shuffleOrder: number[]
+): Flashcard[] {
+  const originalCards = new Array(shuffledCards.length);
+  shuffledCards.forEach((card, shuffledIndex) => {
+    const originalIndex = shuffleOrder[shuffledIndex];
+    originalCards[originalIndex] = card;
+  });
+  return originalCards;
+}
+
+/**
+ * Checks if quiz data contains results
+ */
+export function hasResults(quizData: QuizData): boolean {
+  return !!(quizData.userAnswers && quizData.shuffleOrder);
 }
 
 /**

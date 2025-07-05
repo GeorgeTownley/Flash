@@ -1,7 +1,7 @@
 // components/FlashCardItem.tsx
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState } from "react";
 
 interface Flashcard {
   id: string;
@@ -19,7 +19,6 @@ interface FlashCardItemProps {
 
 export default function FlashCardItem({
   card,
-  cardNumber,
   onUpdate,
   onDelete,
   canDelete,

@@ -1,7 +1,7 @@
 // components/FlashCardEditor.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle, faPlay } from "@fortawesome/free-solid-svg-icons";
 
@@ -42,6 +42,45 @@ export default function FlashCardEditor({
   const [title, setTitle] = useState(initialTitle);
   const [instructions, setInstructions] = useState(initialInstructions);
 
+  // Load saved quiz progress on component mount
+  useEffect(() => {
+    const savedQuiz = localStorage.getItem("flash-quiz-draft");
+    if (savedQuiz) {
+      try {
+        const parsed = JSON.parse(savedQuiz);
+        setCards(parsed.cards || initialCards);
+        setTitle(parsed.title || initialTitle);
+        setInstructions(parsed.instructions || initialInstructions);
+      } catch (error) {
+        console.warn("Failed to load saved quiz draft:", error);
+      }
+    }
+  }, []);
+
+  // Auto-save quiz progress with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const quizData = {
+        cards,
+        title,
+        instructions,
+        lastSaved: new Date().toISOString(),
+      };
+
+      // Only save if there's meaningful content
+      const hasContent =
+        cards.some((card) => card.question.trim() || card.answer.trim()) ||
+        title.trim() ||
+        instructions.trim();
+
+      if (hasContent) {
+        localStorage.setItem("flash-quiz-draft", JSON.stringify(quizData));
+      }
+    }, 1000); // Wait 1 second after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [cards, title, instructions]);
+
   const addCard = () => {
     const newCard: Flashcard = {
       id: Date.now().toString(),
@@ -51,6 +90,14 @@ export default function FlashCardEditor({
     const updatedCards = [...cards, newCard];
     setCards(updatedCards);
     onCardsChange?.(updatedCards);
+
+    // Scroll to new card after it's rendered
+    setTimeout(() => {
+      const newCardElement = document.querySelector(
+        `[data-card-id="${newCard.id}"]`
+      );
+      newCardElement?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
   };
 
   const updateCard = (
@@ -186,8 +233,12 @@ export default function FlashCardEditor({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="e.g., French Vocabulary, History Quiz..."
-          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent]"
-          style={{ borderColor: "var(--color-flash-border)" }}
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2"
+          style={{
+            borderColor: "var(--color-flash-border)",
+            backgroundColor: "var(--color-flash-card)",
+            color: "var(--color-flash-text)",
+          }}
         />
       </div>
 
@@ -203,15 +254,23 @@ export default function FlashCardEditor({
           value={instructions}
           onChange={(e) => setInstructions(e.target.value)}
           placeholder="e.g., Define the following words, Give one-word answers only..."
-          className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent] h-20 resize-none"
-          style={{ borderColor: "var(--color-flash-border)" }}
+          className="w-full p-2 border rounded focus:outline-none focus:ring-2 h-20 resize-none"
+          style={{
+            borderColor: "var(--color-flash-border)",
+            backgroundColor: "var(--color-flash-card)",
+            color: "var(--color-flash-text)",
+          }}
         />
       </div>
 
       {/* Cards */}
       <div className="w-full space-y-4">
         {cards.map((card, index) => (
-          <div key={card.id} className="transition-all duration-300 ease-out">
+          <div
+            key={card.id}
+            className="transition-all duration-300 ease-out"
+            data-card-id={card.id}
+          >
             <FlashCardItem
               card={card}
               cardNumber={index + 1}
@@ -225,24 +284,15 @@ export default function FlashCardEditor({
         ))}
       </div>
 
-      {/* Add Card Button */}
       <AddCardButton onClick={addCard} />
-
-      {/* Import/Export */}
       <ImportExport
         cards={cards}
         title={title}
         instructions={instructions}
         onImport={handleImport}
       />
-
-      {/* Start Test Button */}
       <StartTestButton onClick={handleStartTest} disabled={!hasValidCards} />
-
-      {/* Desktop Rotary Theme Selector */}
       <RotaryThemeSelector />
-
-      {/* Mobile Burger Menu */}
       <MobileBurgerMenu sections={mobileMenuSections} />
     </div>
   );

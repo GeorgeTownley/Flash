@@ -83,7 +83,7 @@ export default function MobileBurgerMenu({
                 >
                   {section.title}
                 </h4>
-                <div onClick={closeMenu}>{section.items}</div>
+                <div>{section.items}</div>
               </div>
             </div>
           ))}

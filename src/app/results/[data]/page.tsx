@@ -67,7 +67,8 @@ export default function ResultsPage({ params }: PageProps) {
   const [percentage, setPercentage] = useState(0);
 
   const [currentUrl, setCurrentUrl] = useState<string>("");
-  const [siteUrl, setSiteUrl] = useState<string>(""); // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [siteUrl, setSiteUrl] = useState<string>("");
 
   const { width, height } = useWindowSize();
 

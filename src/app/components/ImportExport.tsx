@@ -4,6 +4,12 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload, faUpload } from "@fortawesome/free-solid-svg-icons";
+import {
+  encodeQuizData,
+  decodeQuizData,
+  validateQuizData,
+  QuizData,
+} from "../utils/quizEncoding";
 
 interface Flashcard {
   id: string;
@@ -71,7 +77,7 @@ export default function ImportExport({
       return;
     }
 
-    const exportData = {
+    const exportData: QuizData = {
       title: title || "Untitled Quiz",
       instructions: instructions || "",
       cards: validCards,
@@ -79,19 +85,23 @@ export default function ImportExport({
       version: "1.0",
     };
 
-    // Convert to JSON and compress to base64
-    const jsonString = JSON.stringify(exportData);
-    const compressed = btoa(jsonString);
+    try {
+      // Use the utility function for consistent encoding
+      const compressed = encodeQuizData(exportData);
 
-    console.log("Export Data (JSON):", jsonString);
-    console.log("Export Data (Base64):", compressed);
+      console.log("Export Data:", exportData);
+      console.log("Export Data (Encoded):", compressed);
 
-    // Copy to clipboard
-    const success = await copyToClipboard(compressed);
-    if (success) {
-      showNotification("Deck code copied to clipboard", "success");
-    } else {
-      showNotification("Failed to copy to clipboard", "error");
+      // Copy to clipboard
+      const success = await copyToClipboard(compressed);
+      if (success) {
+        showNotification("Deck code copied to clipboard", "success");
+      } else {
+        showNotification("Failed to copy to clipboard", "error");
+      }
+    } catch (error) {
+      console.error("Export error:", error);
+      showNotification("Failed to export deck", "error");
     }
   };
 
@@ -111,22 +121,15 @@ export default function ImportExport({
 
   const handleImportSubmit = () => {
     try {
-      // Try to decode base64 first
-      let jsonString = importText;
-      try {
-        jsonString = atob(importText);
-      } catch {
-        // If base64 decode fails, assume it's already JSON
-      }
-
-      const importedData = JSON.parse(jsonString);
-
-      // Validate the data structure
-      if (!importedData.cards || !Array.isArray(importedData.cards)) {
-        throw new Error("Invalid data format: missing cards array");
-      }
+      // Use the utility function for consistent decoding
+      const importedData = decodeQuizData(importText.trim());
 
       console.log("Import Data:", importedData);
+
+      // Additional validation using the utility
+      if (!validateQuizData(importedData)) {
+        throw new Error("Invalid quiz data structure");
+      }
 
       onImport({
         cards: importedData.cards,
@@ -139,7 +142,10 @@ export default function ImportExport({
       // No success message needed - the data populating is validation enough
     } catch (error) {
       console.error("Import error:", error);
-      showNotification("Incorrect data format", "error");
+      showNotification(
+        error instanceof Error ? error.message : "Incorrect data format",
+        "error"
+      );
     }
   };
 
@@ -223,14 +229,18 @@ export default function ImportExport({
             className="block text-sm font-medium"
             style={{ color: "var(--color-flash-text)" }}
           >
-            Paste your flashcard data (JSON or Base64):
+            Paste your flashcard data:
           </label>
           <textarea
             value={importText}
             onChange={(e) => setImportText(e.target.value)}
             placeholder="Paste exported flashcard data here..."
-            className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[--color-flash-accent] h-32 resize-none"
-            style={{ borderColor: "var(--color-flash-border)" }}
+            className="w-full p-2 border rounded focus:outline-none focus:ring-2 h-32 resize-none"
+            style={{
+              borderColor: "var(--color-flash-border)",
+              backgroundColor: "var(--color-flash-bg)",
+              color: "var(--color-flash-text)",
+            }}
           />
           <div className="flex gap-2">
             <button

@@ -12,6 +12,7 @@ import ImportExport from "./ImportExport";
 import RotaryThemeSelector from "./RotaryThemeSelector";
 import MobileBurgerMenu from "./MobileBurgerMenu";
 import SimpleThemeButtons from "./SimpleThemeButtons";
+import { encodeQuizData, generateQuizUrl } from "../utils/quizEncoding";
 
 interface Flashcard {
   id: string;
@@ -47,15 +48,29 @@ export default function FlashCardEditor({
     const savedQuiz = localStorage.getItem("flash-quiz-draft");
     if (savedQuiz) {
       try {
+        console.log("Found saved quiz data:", savedQuiz);
         const parsed = JSON.parse(savedQuiz);
-        setCards(parsed.cards || initialCards);
-        setTitle(parsed.title || initialTitle);
-        setInstructions(parsed.instructions || initialInstructions);
+        console.log("Parsed saved data:", parsed);
+
+        // Validate the structure before using it
+        if (parsed && typeof parsed === "object") {
+          setCards(
+            parsed.cards && Array.isArray(parsed.cards)
+              ? parsed.cards
+              : initialCards
+          );
+          setTitle(parsed.title || initialTitle);
+          setInstructions(parsed.instructions || initialInstructions);
+        } else {
+          console.warn("Invalid saved data structure, using defaults");
+        }
       } catch (error) {
         console.warn("Failed to load saved quiz draft:", error);
+        // Clear the corrupted data
+        localStorage.removeItem("flash-quiz-draft");
       }
     }
-  }, []);
+  }, []); // Empty dependency array - only run on mount
 
   // Auto-save quiz progress with debouncing
   useEffect(() => {
@@ -139,10 +154,15 @@ export default function FlashCardEditor({
     if (onStartTest) {
       onStartTest(testData);
     } else {
-      const encoded = btoa(JSON.stringify(testData));
-      const testUrl = `/quiz/${encoded}`;
-      window.location.href = testUrl;
-      console.log("Test URL:", testUrl);
+      try {
+        // Use the utility function to generate the quiz URL
+        const testUrl = generateQuizUrl(testData);
+        console.log("Generated quiz URL:", testUrl);
+        window.location.href = testUrl;
+      } catch (error) {
+        console.error("Failed to generate quiz URL:", error);
+        alert("Failed to start quiz. Please try again.");
+      }
     }
   };
 
